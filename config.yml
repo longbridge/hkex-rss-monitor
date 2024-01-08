@@ -1,0 +1,7 @@
+feeds:
+  - key: "channel-1"
+    name: "參與者通告 - 聯交所"
+    url: "https://www.hkex.com.hk/Services/RSS-Feeds/The-Stock-Exchange-of-Hong-Kong-Limited?sc_lang=zh-HK"
+  - key: "channel-2"
+    name: "參與者通告 - 香港結算"
+    url: "https://www.hkex.com.hk/Services/RSS-Feeds/Hong-Kong-Securities-Clearing-Company-Limited?sc_lang=zh-HK"

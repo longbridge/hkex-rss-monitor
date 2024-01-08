@@ -1,0 +1,82 @@
+use std.net.http;
+use std.fs;
+use std.yaml;
+use std.io;
+use std.time;
+use std.xml;
+use feishu.{send_message};
+use state;
+
+struct Config {
+    feeds: [FeedConfig],
+}
+
+struct FeedConfig {
+    url: string,
+    key: string,
+}
+
+/// A RSS 2.0 feed
+struct RssFeed {
+    channel: Channel,
+}
+
+#[serde(rename_all = "camelCase")]
+struct Channel {
+    title: string,
+    link: string,
+    description: string,
+    #[serde(rename = "item")]
+    items: [Item],
+}
+
+/// A RSS 2.0 item
+#[serde(rename_all = "camelCase")]
+struct Item {
+    guid: string,
+    title: string,
+    link: string,
+    pub_date: string,
+    description: string,
+}
+
+impl Item {
+    fn date(self): time.DateTime {
+        return try! time.parse(self.pub_date);
+    }
+}
+
+fn load_config(): Config throws {
+    let config = try yaml.parse::<Config>(fs.read_to_string("./config.yml"));
+    return config;
+}
+
+fn fetch_rss(url: string): [Item] throws {
+    let res = try http.get(url);
+    let rss = try xml.parse::<RssFeed>(res.text());
+    return rss.channel.items;
+}
+
+fn process_item(item: Item, feed_config: FeedConfig) throws {
+    if (try state.exists(feed_config.key, item.guid)) {
+        return;
+    }
+
+    io.println(`New Item: ${item.title}`);
+
+    let message: string = `${item.title}\n\n${item.pub_date}\n\n${item.link}`;
+    // try send_message(message);
+    try state.append(feed_config.key, item.guid);
+}
+
+fn main() throws {
+    let config = try load_config();
+
+    for (let feed_config in config.feeds) {
+        io.println(`Fetching ${feed_config.url}`);
+        let items = try fetch_rss(feed_config.url);
+        for (let item in items) {
+            try process_item(item, feed_config);
+        }
+    }
+}

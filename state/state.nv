@@ -1,0 +1,31 @@
+use std.fs;
+
+pub fn load(key: string): [string] throws {
+    try fs.create_dir_all(".save");
+    let path = `.save/${key}.state`;
+    if (!fs.exists(path)) {
+        return {};
+    }
+
+    let data = try fs.read_to_string(path);
+    return data.split("\n");
+}
+
+pub fn exists(key: string, guide: string): bool throws {
+    let items = try load(key);
+    return items.contains(guide);
+}
+
+pub fn append(key: string, guid: string) throws {
+    let old_items = try load(key);
+    old_items.unshift(guid);
+    old_items.unique();
+    old_items.truncate(50);
+    try fs.create_dir_all(".save");
+    let file = try fs.create(`.save/${key}.state`);
+    defer {
+        try! file.close();
+    }
+    try file.write_string(old_items.join("\n"));
+
+}

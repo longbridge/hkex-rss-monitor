@@ -1,0 +1,23 @@
+on:
+  schedule:
+    # every day at 10:00 (Beijing time)
+    - cron: "0 2 * * *"
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: navi-language/setup-navi@v1
+        with:
+          navi-version: v0.9.1-nightly-20240107
+      - name: Perform
+        env:
+          CI: 1
+          FEISHU_WEBHOOK_KEY: ${{ secrets.FEISHU_WEBHOOK_KEY }}
+        run: |
+          navi run
+          git config --global user.email "navi@navi"
+          git pull
+          git add -A && git commit -m "Update state"
+          git push

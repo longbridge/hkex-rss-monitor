@@ -1,0 +1,29 @@
+use std.net.http;
+use std.json;
+use std.io;
+use std.env;
+
+let WEBHOOK_URL = `https://open.feishu.cn/open-apis/bot/v2/hook/${env.get("FEISHU_WEBHOOK_KEY")}`;
+
+struct Message {
+    msg_type: string,
+    content: <string, string>,
+}
+
+impl Message {
+    pub fn new(message: string): Message {
+        return Message { msg_type: "text", content: { "text": message } };
+    }
+}
+
+/// Send a notification to Feishu
+pub fn send_message(message: string) throws {
+    let message = Message.new(message);
+    let payload = try json.to_string(message);
+    let res = try http.post(WEBHOOK_URL, body: payload.bytes());
+    if (res.status() != 200) {
+        throw "Failed to send notification";
+    }
+
+    io.println("Notification sent");
+}
