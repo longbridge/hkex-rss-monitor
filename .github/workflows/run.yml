@@ -1,7 +1,8 @@
 on:
   schedule:
-    # every day at 10:00 (Beijing time)
-    - cron: "0 2 * * *"
+    # At every 120th minute.
+    - cron: '*/120 * * * *'
+  push:
 
 jobs:
   run:
@@ -17,7 +18,8 @@ jobs:
           FEISHU_WEBHOOK_KEY: ${{ secrets.FEISHU_WEBHOOK_KEY }}
         run: |
           navi run
-          git config --global user.email "navi@navi"
-          git pull
-          git add -A && git commit -m "Update state"
+          git config --global user.name "RSS Bot"
+          git config --global user.email "rss-bot@longbridge-inc.com"
+          timestamp=$(date -u)
+          git add -A && git commit -m "Update check state ${timestamp}." || exit 0
           git push

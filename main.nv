@@ -64,8 +64,8 @@ fn process_item(item: Item, feed_config: FeedConfig) throws {
 
     io.println(`New Item: ${item.title}`);
 
-    let message: string = `${item.title}\n\n${item.pub_date}\n\n${item.link}`;
-    // try send_message(message);
+    let message: string = `${item.title}\n\n${item.pub_date}\n\n${item.link}\n\nFrom: https://github.com/longbridgeapp/hkex-rss-monitor`;
+    try send_message(message);
     try state.append(feed_config.key, item.guid);
 }
 

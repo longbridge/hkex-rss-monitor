@@ -4,7 +4,7 @@ A RSS monitor for HKEX news.
 
 ## Development
 
-Install [Navi](https://navi-lang.org/installation)/
+Install [Navi](https://navi-lang.org/installation) first.
 
 ```bash
 $ curl -sSL https://navi-lang.org/install | bash -s -- nightly
