@@ -1,31 +1,38 @@
 use std.fs;
+use std.time;
+use std.io;
 
-pub fn load(key: string): [string] throws {
+pub fn load(key: string): time.DateTime? throws {
     try fs.create_dir_all(".save");
     let path = `.save/${key}.state`;
     if (!fs.exists(path)) {
-        return {};
+        return nil;
     }
 
-    let data = try fs.read_to_string(path);
-    return data.split("\n");
+    let date = try fs.read_to_string(path).trim();
+    do {
+        return try time.parse(date);
+    } catch(e) {
+        io.println("invalid date: ${date} faild parse time.");
+    }
+
+    return nil;
 }
 
-pub fn exists(key: string, guide: string): bool throws {
-    let items = try load(key);
-    return items.contains(guide);
-}
-
-pub fn append(key: string, guid: string) throws {
-    let old_items = try load(key);
-    old_items.unshift(guid);
-    old_items.unique();
-    old_items.truncate(50);
+pub fn save(key: string, date: time.DateTime) throws {
     try fs.create_dir_all(".save");
     let file = try fs.create(`.save/${key}.state`);
     defer {
         try! file.close();
     }
-    try file.write_string(old_items.join("\n"));
+    try file.write_string(date.iso8601());
+}
 
+/// Check if the given pub_date is newer than the last one.
+pub fn is_new(key: string, date: time.DateTime): bool throws {
+    let last_date = try load(key);
+    if (last_date == nil) {
+        return true;
+    }
+    return date > last_date!;
 }

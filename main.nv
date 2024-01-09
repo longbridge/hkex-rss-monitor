@@ -38,11 +38,18 @@ struct Item {
     link: string,
     pub_date: string,
     description: string,
+
+    date: time.DateTime? = nil,
 }
 
 impl Item {
+    /// Parse the pubDate field into a DateTime
     fn date(self): time.DateTime {
-        return try! time.parse(self.pub_date);
+        if (let date = self.date) {
+            return date;
+        }
+        self.date = try! time.parse(self.pub_date, format: "%a, %d %b %Y %H:%M:%S %z");
+        return self.date!;
     }
 }
 
@@ -58,7 +65,9 @@ fn fetch_rss(url: string): [Item] throws {
 }
 
 fn process_item(item: Item, feed_config: FeedConfig) throws {
-    if (try state.exists(feed_config.key, item.guid)) {
+    // io.println(`item: ${item.date()}`);
+
+    if (!(try state.is_new(feed_config.key, item.date()))) {
         return;
     }
 
@@ -66,17 +75,44 @@ fn process_item(item: Item, feed_config: FeedConfig) throws {
 
     let message: string = `${item.title}\n\n${item.pub_date}\n\n${item.link}\n\nFrom: https://github.com/longbridgeapp/hkex-rss-monitor`;
     try send_message(message);
-    try state.append(feed_config.key, item.guid);
+
 }
 
 fn main() throws {
     let config = try load_config();
 
     for (let feed_config in config.feeds) {
+        let last_date: time.DateTime? = nil;
         io.println(`Fetching ${feed_config.url}`);
         let items = try fetch_rss(feed_config.url);
+        items.reverse();
+
         for (let item in items) {
             try process_item(item, feed_config);
+            if (last_date == nil || item.date() > last_date!) {
+                last_date = item.date();
+            }
         }
+
+        try state.save(feed_config.key, last_date!);
     }
+
+}
+
+test "Item.date" {
+    let item = Item {
+        guid: "guid",
+        title: "title",
+        link: "link",
+        pub_date: "Tue, 09 Jan 2024 17:37:24 +0800",
+        description: "description"
+    };
+
+    let t = item.date();
+    assert t.year() == 2024;
+    assert t.month() == 1;
+    assert t.day() == 9;
+    assert t.hour() == 17;
+    assert t.minute() == 37;
+    assert t.second() == 24;
 }
