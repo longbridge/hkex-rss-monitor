@@ -1,4 +1,4 @@
-use std.net.http;
+use std.net.http.{self, Body};
 use std.json;
 use std.io;
 use std.env;
@@ -20,7 +20,8 @@ impl Message {
 pub fn send_message(message: string) throws {
     let message = Message.new(message);
     let payload = try json.to_string(message);
-    let res = try http.post(WEBHOOK_URL, body: payload.bytes());
+    let body = Body.from_string(payload);
+    let res = try http.post(WEBHOOK_URL, body:);
     if (res.status() != 200) {
         throw "Failed to send notification";
     }
