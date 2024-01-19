@@ -20,8 +20,7 @@ impl Message {
 pub fn send_message(message: string) throws {
     let message = Message.new(message);
     let payload = try json.to_string(message);
-    let body = Body.from_string(payload);
-    let res = try http.post(WEBHOOK_URL, body:);
+    let res = try http.post(WEBHOOK_URL, body: payload);
     if (res.status() != 200) {
         throw "Failed to send notification";
     }
