@@ -1,6 +1,4 @@
-use std.fs;
-use std.time;
-use std.io;
+use std.{fs, io, time};
 
 pub fn load(key: string): time.DateTime? throws {
     try fs.create_dir_all(".save");
@@ -13,7 +11,7 @@ pub fn load(key: string): time.DateTime? throws {
     do {
         return try time.parse(date);
     } catch(e) {
-        io.println("invalid date: ${date} faild parse time.");
+        println("invalid date: ${date} faild parse time.");
     }
 
     return nil;
@@ -22,9 +20,7 @@ pub fn load(key: string): time.DateTime? throws {
 pub fn save(key: string, date: time.DateTime) throws {
     try fs.create_dir_all(".save");
     let file = try fs.create(`.save/${key}.state`);
-    defer {
-        try! file.close();
-    }
+    defer try! file.close();
     try file.write_string(date.iso8601());
 }
 

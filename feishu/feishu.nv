@@ -1,9 +1,7 @@
-use std.net.http.{self, Body};
-use std.json;
-use std.io;
-use std.env;
+use std.{env, json, net.http.{self, Body}};
 
-let WEBHOOK_URL = `https://open.feishu.cn/open-apis/bot/v2/hook/${env.get("FEISHU_WEBHOOK_KEY")}`;
+const FEISHI_WEBHOOK_KEY = env.get("FEISHU_WEBHOOK_KEY").expect("FEISHU_WEBHOOK_KEY is not set");
+const WEBHOOK_URL = `https://open.feishu.cn/open-apis/bot/v2/hook/${FEISHI_WEBHOOK_KEY}`;
 
 struct Message {
     msg_type: string,
@@ -12,7 +10,7 @@ struct Message {
 
 impl Message {
     pub fn new(message: string): Message {
-        return Message { msg_type: "text", content: { "text": message } };
+        return Message { msg_type: "text", content: {"text": message} };
     }
 }
 
@@ -25,5 +23,5 @@ pub fn send_message(message: string) throws {
         throw "Failed to send notification";
     }
 
-    io.println("Notification sent");
+    println("Notification sent");
 }
