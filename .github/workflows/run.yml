@@ -1,3 +1,4 @@
+name: Run
 on:
   schedule:
     # At every 120th minute.
