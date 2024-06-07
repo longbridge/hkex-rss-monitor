@@ -1,0 +1,14 @@
+name: Test
+on:
+  push:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: navi-language/setup-navi@v1
+        with:
+          navi-version: v0.11.0
+      - run: |
+          navi test
