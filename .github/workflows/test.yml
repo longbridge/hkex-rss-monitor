@@ -10,5 +10,6 @@ jobs:
       - uses: navi-language/setup-navi@v1
         with:
           navi-version: v0.11.0
-      - run: |
-          navi test
+      - env:
+          FEISHU_WEBHOOK_KEY: test-key
+        run: navi test
