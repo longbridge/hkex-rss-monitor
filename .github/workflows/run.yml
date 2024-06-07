@@ -3,6 +3,8 @@ on:
     # At every 120th minute.
     - cron: "*/120 * * * *"
   push:
+    branches:
+      - main
 
 jobs:
   run:
