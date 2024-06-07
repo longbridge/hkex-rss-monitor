@@ -1,12 +1,6 @@
-use std.net.http;
-use std.fs;
-use std.yaml;
-use std.io.{self, StringBuffer};
-use std.time;
-use std.xml;
-use std.env;
-use std.regex.Regex;
-use feishu.{send_message};
+use std.{env, fs, io.{self, StringBuffer}, net.http, regex.Regex, time, xml, yaml};
+
+use feishu.send_message;
 use state;
 
 const CI = env.get("CI") != nil;
@@ -45,7 +39,6 @@ struct Item {
     link: string,
     pub_date: string,
     description: string,
-
     date: time.DateTime? = nil,
 }
 
@@ -64,9 +57,7 @@ impl Item {
     }
 
     fn to_message(self): string {
-        return
-            `${self.formated_title()}\n\n${self.pub_date}\n\n${self.link}\n\nFrom: https://github.com/longbridgeapp/hkex-rss-monitor`
-       ;
+        return `${self.formated_title()}\n\n${self.pub_date}\n\n${self.link}\n\nFrom: https://github.com/longbridgeapp/hkex-rss-monitor`;
     }
 }
 
@@ -82,19 +73,19 @@ fn fetch_rss(url: string): [Item] throws {
 }
 
 fn process_item(item: Item, feed_config: FeedConfig) throws {
-    // io.println(`item: ${item.date()}`);
+    // println(`item: ${item.date()}`);
 
     if (!(try state.is_new(feed_config.key, item.date()))) {
         return;
     }
 
-    io.println(`New Item: ${item.title}`);
+    println(`New Item: ${item.title}`);
 
     let message: string = item.to_message();
     if (CI) {
         try send_message(message);
     } else {
-        io.println(message);
+        println(message);
     }
 }
 
@@ -103,7 +94,7 @@ fn main() throws {
 
     for (let feed_config in config.feeds) {
         let last_date: time.DateTime? = nil;
-        io.println(`Fetching ${feed_config.url}`);
+        println(`Fetching ${feed_config.url}`);
         let items = try fetch_rss(feed_config.url);
         items.reverse();
 
@@ -116,7 +107,6 @@ fn main() throws {
 
         try state.save(feed_config.key, last_date!);
     }
-
 }
 
 test "Item.date" {
@@ -125,7 +115,7 @@ test "Item.date" {
         title: "title",
         link: "link",
         pub_date: "Tue, 09 Jan 2024 17:37:24 +0800",
-        description: "description"
+        description: "description",
     };
 
     let t = item.date();
@@ -143,7 +133,7 @@ test "Item.to_message" {
         title: "This is title<br>Next line",
         link: "https://github.com",
         pub_date: "Tue, 09 Jan 2024 17:37:24 +0800",
-        description: "description"
+        description: "description",
     };
     assert_eq item.to_message(), `This is title\nNext line\n\nTue, 09 Jan 2024 17:37:24 +0800\n\nhttps://github.com\n\nFrom: https://github.com/longbridgeapp/hkex-rss-monitor`;
 }
@@ -154,7 +144,7 @@ test "Item.formated_title" {
         title: "This is title<br>Next line",
         link: "https://github.com",
         pub_date: "Tue, 09 Jan 2024 17:37:24 +0800",
-        description: "description"
+        description: "description",
     };
     assert_eq item.formated_title(), `This is title\nNext line`;
 
