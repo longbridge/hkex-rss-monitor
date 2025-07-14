@@ -1,4 +1,14 @@
-use std.{env, fs, io.{self, StringBuffer}, net.http, regex.Regex, time, xml, yaml};
+use std.{
+    env,
+    fs,
+    io,
+    net.http.client.HttpClient,
+    regex.Regex,
+    str.StringBuffer,
+    time.DateTime,
+    xml,
+    yaml
+};
 
 use slack.send_message;
 use state;
@@ -39,16 +49,16 @@ struct Item {
     link: string,
     pub_date: string,
     description: string,
-    date: time.DateTime? = nil,
+    date: DateTime? = nil,
 }
 
 impl Item {
     /// Parse the pubDate field into a DateTime
-    fn date(self): time.DateTime {
+    fn date(self): DateTime {
         if (let date = self.date) {
             return date;
         }
-        self.date = try! time.parse(self.pub_date, format: "%a, %d %b %Y %H:%M:%S %z");
+        self.date = try! DateTime.parse(self.pub_date, format: "%a, %d %b %Y %H:%M:%S %z");
         return self.date!;
     }
 
@@ -67,8 +77,9 @@ fn load_config(): Config throws {
 }
 
 fn fetch_rss(url: string): [Item] throws {
-    let res = try http.get(url);
-    let rss = try xml.from_reader::<RssFeed>(res.body());
+    let http_cli = HttpClient.new();
+    let res = try http_cli.get(url);
+    let rss = try xml.parse::<RssFeed>(res.bytes());
     return rss.channel.items;
 }
 
@@ -93,7 +104,7 @@ fn main() throws {
     let config = try load_config();
 
     for (let feed_config in config.feeds) {
-        let last_date: time.DateTime? = nil;
+        let last_date: DateTime? = nil;
         println(`Fetching ${feed_config.url}`);
         let items = try fetch_rss(feed_config.url);
         items.reverse();
