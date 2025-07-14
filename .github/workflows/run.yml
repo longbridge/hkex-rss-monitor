@@ -18,7 +18,7 @@ jobs:
       - name: Perform
         env:
           CI: 1
-          FEISHU_WEBHOOK_KEY: ${{ secrets.FEISHU_WEBHOOK_KEY }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
           navi run
           git config --global user.name "RSS Bot"
