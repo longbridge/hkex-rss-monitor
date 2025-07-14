@@ -11,5 +11,5 @@ jobs:
         with:
           navi-version: v0.11.0
       - env:
-          FEISHU_WEBHOOK_KEY: test-key
+          SLACK_WEBHOOK_URL: test-key
         run: navi test

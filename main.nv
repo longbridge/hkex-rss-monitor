@@ -1,6 +1,6 @@
 use std.{env, fs, io.{self, StringBuffer}, net.http, regex.Regex, time, xml, yaml};
 
-use feishu.send_message;
+use slack.send_message;
 use state;
 
 const CI = env.get("CI") != nil;
@@ -57,7 +57,7 @@ impl Item {
     }
 
     fn to_message(self): string {
-        return `${self.formated_title()}\n\n${self.pub_date}\n\n${self.link}\n\nFrom: https://github.com/longbridgeapp/hkex-rss-monitor`;
+        return `${self.formated_title()}\n\n${self.pub_date}\n\n${self.link}`;
     }
 }
 
@@ -135,7 +135,7 @@ test "Item.to_message" {
         pub_date: "Tue, 09 Jan 2024 17:37:24 +0800",
         description: "description",
     };
-    assert_eq item.to_message(), `This is title\nNext line\n\nTue, 09 Jan 2024 17:37:24 +0800\n\nhttps://github.com\n\nFrom: https://github.com/longbridgeapp/hkex-rss-monitor`;
+    assert_eq item.to_message(), `This is title\nNext line\n\nTue, 09 Jan 2024 17:37:24 +0800\n\nhttps://github.com`;
 }
 
 test "Item.formated_title" {
