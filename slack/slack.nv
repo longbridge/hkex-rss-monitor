@@ -1,16 +1,14 @@
 use std.{env, json, net.http.{self, Body}};
 
-const FEISHI_WEBHOOK_KEY = env.get("FEISHU_WEBHOOK_KEY").expect("FEISHU_WEBHOOK_KEY is not set");
-const WEBHOOK_URL = `https://open.feishu.cn/open-apis/bot/v2/hook/${FEISHI_WEBHOOK_KEY}`;
+const WEBHOOK_URL = env.get("SLACK_WEBHOOK_URL").expect("SLACK_WEBHOOK_URL is not set");
 
 struct Message {
-    msg_type: string,
-    content: <string, string>,
+    content: string,
 }
 
 impl Message {
     pub fn new(message: string): Message {
-        return Message { msg_type: "text", content: {"text": message} };
+        return Message { content: message };
     }
 }
 
