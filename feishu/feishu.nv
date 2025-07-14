@@ -1,4 +1,4 @@
-use std.{env, json, net.http.{self, Body}};
+use std.{env, json, net.http.{self, client.{HttpClient, Request}}};
 
 const FEISHI_WEBHOOK_KEY = env.get("FEISHU_WEBHOOK_KEY").expect("FEISHU_WEBHOOK_KEY is not set");
 const WEBHOOK_URL = `https://open.feishu.cn/open-apis/bot/v2/hook/${FEISHI_WEBHOOK_KEY}`;
@@ -17,9 +17,13 @@ impl Message {
 /// Send a notification to Feishu
 pub fn send_message(message: string) throws {
     let message = Message.new(message);
-    let payload = try json.to_string(message);
-    let res = try http.post(WEBHOOK_URL, body: payload);
-    if (res.status() != 200) {
+    let http_cli = HttpClient.new();
+    let res = try http_cli
+        .request(Request
+            .post(WEBHOOK_URL)
+            .set_header("Content-Type", "application/json")
+            .set_json(message));
+    if (res.status() != http.OK) {
         throw "Failed to send notification";
     }
 

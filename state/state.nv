@@ -1,6 +1,6 @@
-use std.{fs, io, time};
+use std.{fs, io, time.DateTime};
 
-pub fn load(key: string): time.DateTime? throws {
+pub fn load(key: string): DateTime? throws {
     try fs.create_dir_all(".save");
     let path = `.save/${key}.state`;
     if (!fs.exists(path)) {
@@ -9,7 +9,7 @@ pub fn load(key: string): time.DateTime? throws {
 
     let date = try fs.read_to_string(path).trim();
     do {
-        return try time.parse(date);
+        return try DateTime.parse(date);
     } catch(e) {
         println("invalid date: ${date} faild parse time.");
     }
@@ -17,15 +17,13 @@ pub fn load(key: string): time.DateTime? throws {
     return nil;
 }
 
-pub fn save(key: string, date: time.DateTime) throws {
+pub fn save(key: string, date: DateTime) throws {
     try fs.create_dir_all(".save");
-    let file = try fs.create(`.save/${key}.state`);
-    defer try! file.close();
-    try file.write_string(date.iso8601());
+    try fs.write_string(`.save/${key}.state`, date.iso8601());
 }
 
 /// Check if the given pub_date is newer than the last one.
-pub fn is_new(key: string, date: time.DateTime): bool throws {
+pub fn is_new(key: string, date: DateTime): bool throws {
     let last_date = try load(key);
     if (last_date == nil) {
         return true;
